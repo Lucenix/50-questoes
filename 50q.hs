@@ -328,3 +328,71 @@ partitionEithers (h:t) = case h of
         (x,y) = (partitionEithers t)
     
 --43
+catMaybes:: [Maybe a]->[a]
+catMaybes (x:xs) = case x of
+    Nothing -> catMaybes xs
+    Just a -> [a] ++ catMaybes xs
+
+data Movimento = Norte | Sul | Este | Oeste deriving Show
+
+--44
+posicao:: (Int,Int)->[Movimento]->(Int,Int)
+posicao a [] = a
+posicao (a,b) (x:xs) = case x of
+    Norte -> posicao(a,b+1) xs
+    Sul -> posicao(a,b-1) xs
+    Este -> posicao (a+1,b) xs
+    Oeste -> posicao (a-1,b) xs
+
+--45
+caminho:: (Int,Int)->(Int,Int)->[Movimento]
+caminho (xi,yi) (xf,yf)
+    | xi == xf && yi == yf = []
+    | xi>xf = (Oeste: caminho (xi-1,yi) (xf,yf))
+    | xi<xf = (Este: caminho (xi+1,yi)(xf,yf))
+    | yi>yf = (Sul: caminho (xi,yi-1)(xf,yf))
+    | otherwise = (Norte: caminho(xi,yi+1)(xf,yf))
+
+--46
+vertical:: [Movimento]->Bool
+vertical [] = True
+vertical (e:es)=case e of
+    Este->False
+    Oeste->False
+    _->vertical es
+
+data Posicao = Pos Int Int  deriving Show
+--47
+maisCentral::[Posicao]->Posicao
+maisCentral [a] = a
+maisCentral ((Pos x1 y1):(Pos x2 y2):t)
+    | raio1 <= raio2 = maisCentral ((Pos x1 y1):t)
+    | otherwise = maisCentral ((Pos x2 y2):t)
+        where
+            raio1 = sqrt(fromIntegral ((x1^2) + (y1^2)))
+            raio2 = sqrt(fromIntegral ((x2^2) + (y2^2)))
+
+--48
+vizinhos:: Posicao->[Posicao]->[Posicao]
+vizinhos _ [] = []
+vizinhos (Pos x1 y1) ((Pos x2 y2):t)
+    | x2 == x1-1 || x2 == x1+1 || y2 == y1-1 || y2 == y1+1 = (Pos x2 y2): vizinhos (Pos x1 y1) t
+    | otherwise = vizinhos (Pos x1 y1) t
+
+--49
+mesmaOrdenada:: [Posicao]->Bool
+mesmaOrdenada [] = True
+mesmaOrdenada ((Pos _ y1):(Pos _ y2):t)
+    | y1 /= y2 = False
+    | otherwise = mesmaOrdenada t
+
+data Semaforo = Verde | Amarelo | Vermelho deriving Show
+--50
+interseccaoOK:: [Semaforo]->Bool
+interseccaoOK l = aux l 0
+    where
+        aux _ 2 = False
+        aux [] _ = True
+        aux (e:es) n = case e of
+            Verde->aux es (n+1)
+            _->aux es n
