@@ -83,7 +83,7 @@ agrupa (h:t) = loopa [h] t
 
 --13
 concat'::Eq a => [[a]]->[a]
-concat' [[]] = []
+concat' [] = []
 concat' (h:hs) = h ++ concat' hs
 --concat' ((h:hs):hss) = h:concat'(hs:hss)
 --concat' ([]:hss) = concat' hss
@@ -263,6 +263,7 @@ aux (h:t) n
 
 --33
 isSorted:: Ord a => [a]->Bool
+isSorted [] = True
 isSorted (_:[]) = True
 isSorted (h:t)
     | h <= (head t) = isSorted t
@@ -288,3 +289,42 @@ elemMSet n ((h,_):t)
     | otherwise = elemMSet n t
 
 --37
+lengthMSet:: [(a,Int)]->Int
+lengthMSet [] = 0
+lengthMSet ((_,n):t) = n + length t
+
+--38
+converteMSet:: [(a,Int)]->[a]
+converteMSet ((h,1):t) = h:converteMSet t
+converteMSet ((h,n):t) = h:converteMSet ((h,n-1) :t)
+
+--39
+insereMSet:: Eq a => a->[(a,Int)]->[(a,Int)]
+insereMSet a [] = [(a,1)]
+insereMSet a ((b,n):t)
+    | a == b = ((a,n+1):t)
+    | otherwise = (b,n):insereMSet a t
+
+--40
+removeMSet:: Eq a => a->[(a,Int)]->[(a,Int)]
+removeMSet _ [] = []
+removeMSet a ((b,n):t)
+    | a==b && n==1 = t
+    | a==b = (b,n-1):t
+    | otherwise = (b,n):removeMSet a t
+
+--41
+constroiMSet:: Ord a => [a]-> [(a,Int)]
+constroiMSet [] = []
+constroiMSet (h:t) = insereMSet h (constroiMSet t)
+
+--42
+partitionEithers:: [Either a b]->([a],[b])
+partitionEithers [] = ([],[])
+partitionEithers (h:t) = case h of
+    Left a -> ((a:x),y)
+    Right b -> (x,(b:y))
+    where
+        (x,y) = (partitionEithers t)
+    
+--43
