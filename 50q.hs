@@ -275,3 +275,16 @@ iSort [h] = [h]
 iSort (h:t) = insert' h (iSort t)
 
 --35
+menor:: String->String->Bool
+menor _ [] = False
+menor [] _ = True
+menor (_:t1) (_:t2) = menor t1 t2
+
+--36
+elemMSet:: Eq a => a->[(a,Int)]->Bool
+elemMSet _ [] = False
+elemMSet n ((h,_):t)
+    | n == h = True
+    | otherwise = elemMSet n t
+
+--37
