@@ -271,15 +271,85 @@ isSorted (h:t)
 
 --34
 iSort:: Ord a => [a]->[a]
+
+
 iSort [] = []
 iSort [h] = [h]
 iSort (h:t) = insert' h (iSort t)
+
+{-
+insert':: Ord a => a->[a]->[a]
+insert' n [] = [n]
+insert' n (h:t)
+    | n <= h = n : (h:t)
+    | otherwise = h: insert' n t
+-}
+
+{-
+iSort [] =[]
+iSort (h:t) = (iSort (men h t)) ++ h:(iSort (mai h t))
+    where
+        men _ [] = []
+        men h (x:xs) | h<=x = x: men h xs
+                     | otherwise = men h xs
+        mai _ [] = []
+        mai h (x:xs) | h>x = x: mai h xs
+                     | otherwise = mai h xs
+
+    MELHORANDO...
+
+iSort [] =[]
+iSort (h:t) = (iSort (men h t)) ++ h:(iSort (mai h t))
+    where
+        men = [x | x <- t, x<=h]
+        mai = [x | x <- t, x>h]
+
+    MELHORANDO...
+
+iSort [] = []
+iSort (h:t) = (iSort men) ++ (h: (iSort mai))
+    where
+        (men,mai) = menMai h t --par de listas, primeira dos maiores e segunda dos menores     
+        menMai::Ord a=> a->[a]->([a],[a])
+        menMai _ [] = ([],[])
+        menMai x (h:t)  | h<=x = ((h:a),b) --mete dentro dos menores
+                        | otherwise = (a,(h:b)) --mete dentro dos maiores
+                            where
+                            (a,b) = menMai x t --par de listas que eventualmente serão vazias por recursividade
+-}
+{-
+Outra forma...
+
+iSort [] = []
+iSort l = h: (iSort t)
+    where 
+        h = minimum' l --elemento mínimo da lista l
+        t = delete' h l --tirar o elemento mínimo da lista l
+
+delete':: Eq a => a->[a]->[a]
+delete' x (h:t)
+    | x==h = t
+    | otherwise = h: delete' x t
+delete' _ _ = []
+
+minimum':: Ord a => [a]->a
+minimum' [] = error "Empty List"
+minimum' [x] = x
+minimum' (h1:h2:t) 
+    | h1<h2 = minimum'(h1:t)
+    | h2<h1 = minimum'(h2:t)
+    | otherwise = minimum'(h1:t)
+--minimum' (h:t) = min h (minimum' t)
+-}
 
 --35
 menor:: String->String->Bool
 menor _ [] = False
 menor [] _ = True
-menor (_:t1) (_:t2) = menor t1 t2
+menor (h1:t1) (h2:t2)
+    | h1==h2 = menor t1 t2
+    | h1<h2 = True
+    | otherwise = False               
 
 --36
 elemMSet:: Eq a => a->[(a,Int)]->Bool
@@ -295,6 +365,7 @@ lengthMSet ((_,n):t) = n + length t
 
 --38
 converteMSet:: [(a,Int)]->[a]
+converteMSet [] = []
 converteMSet ((h,1):t) = h:converteMSet t
 converteMSet ((h,n):t) = h:converteMSet ((h,n-1) :t)
 
@@ -317,6 +388,14 @@ removeMSet a ((b,n):t)
 constroiMSet:: Ord a => [a]-> [(a,Int)]
 constroiMSet [] = []
 constroiMSet (h:t) = insereMSet h (constroiMSet t)
+
+{-
+insereMSet:: Eq a => a->[(a,Int)]->[(a,Int)]
+insereMSet a [] = [(a,1)]
+insereMSet a ((b,n):t)
+    | a == b = ((a,n+1):t)
+    | otherwise = (b,n):insereMSet a t
+-}
 
 --42
 partitionEithers:: [Either a b]->([a],[b])
