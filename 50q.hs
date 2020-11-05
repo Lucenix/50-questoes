@@ -124,14 +124,13 @@ isSubsequenceOf' (h1:t1) (h2:t2)
     | otherwise = isSubsequenceOf' (h1:t1) t2
 
 --19
-indicesAux:: Eq a=> a->[a]->Int->[Int]
-indicesAux x (h:t) n
-    | x == h = n: indicesAux x t (n+1)
-    | otherwise = indicesAux x t (n+1)
-
 elemIndices':: Eq a => a->[a]->[Int]
 elemIndices' _ [] = []
 elemIndices' x l = indicesAux x l 0
+    where
+        indicesAux x (h:t) n
+            | x==h = n:indicesAux x t (n+1)
+            | otherwise = indicesAux x t (n+1)
 
 --20
 nub':: Eq a => [a]->[a]
@@ -270,14 +269,12 @@ isSorted (h:t)
     | otherwise = False
 
 --34
+{-
 iSort:: Ord a => [a]->[a]
-
-
 iSort [] = []
 iSort [h] = [h]
 iSort (h:t) = insert' h (iSort t)
 
-{-
 insert':: Ord a => a->[a]->[a]
 insert' n [] = [n]
 insert' n (h:t)
@@ -285,6 +282,27 @@ insert' n (h:t)
     | otherwise = h: insert' n t
 -}
 
+--melhor delas todas por alguma razão...
+mergeSort:: Ord a => [a]->[a]
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort l = merge (mergeSort l1) (mergeSort l2)
+    where
+        --l1 = mergeSort (Main.take (div (length l) 2) l)
+        --l2 = mergeSort (Main.drop (div (length l) 2) l)
+        (l1,l2) = parte l
+        merge:: Ord a => [a]->[a]->[a]
+        merge [] b = b
+        merge a [] = a
+        merge (a:as) (b:bs)
+            | a<b = a: merge as (b:bs)
+            | otherwise = b: merge (a:as) bs
+        parte:: [a]->([a],[a])
+        parte [] = ([],[])
+        parte [x] = ([x],[])
+        parte (x1:x2:xs) = (x1:xs1, x2:xs2)
+            where
+                (xs1,xs2) = parte xs
 {-
 iSort [] =[]
 iSort (h:t) = (iSort (men h t)) ++ h:(iSort (mai h t))
@@ -344,8 +362,8 @@ minimum' (h1:h2:t)
 
 --35
 menor:: String->String->Bool
-menor _ [] = False
 menor [] _ = True
+menor _ [] = False
 menor (h1:t1) (h2:t2)
     | h1==h2 = menor t1 t2
     | h1<h2 = True
