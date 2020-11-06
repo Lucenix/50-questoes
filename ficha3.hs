@@ -93,3 +93,20 @@ areaLinha (p0:p1:p2:p3:ps) = aux (triangula (p0:p1:p2:p3:ps))
 areaLinha _ = 0
 
 --2e
+mover:: Poligonal->Ponto->Poligonal
+mover [] _ = []
+mover l p 
+    | dist p x > dist p y = p:l
+    | otherwise = p:(reverse l)
+    where
+        (x,y) = aux l
+            where 
+                aux (h:t) = (h,last t)
+
+--2f
+zoom:: Double->Poligonal->Poligonal
+zoom _ [x] = [x]
+zoom n (h:t) = h: aux n t
+    where
+        aux _ [x] = (x:[])
+        aux n (p0:p1:ps) = (C (n*posx p1 - posx p0) (n*posy p1 - posy p0)):aux n (p1:ps) 

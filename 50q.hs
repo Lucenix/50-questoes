@@ -124,7 +124,7 @@ isSubsequenceOf' (h1:t1) (h2:t2)
     | otherwise = isSubsequenceOf' (h1:t1) t2
 
 --19
-{-
+
 elemIndices':: Eq a => a->[a]->[Int]
 elemIndices' _ [] = []
 elemIndices' x l = indicesAux x l 0
@@ -132,13 +132,13 @@ elemIndices' x l = indicesAux x l 0
         indicesAux x (h:t) n
             | x==h = n:indicesAux x t (n+1)
             | otherwise = indicesAux x t (n+1)
--}
+
 
 --holy isto funciona
-elemIndices':: Eq a => a->[a]->[Int]
 elemIndices' n l = [i | (y,i)<-zip l [0..] ,y==n]
                     --i é o que retorna, o zip faz um par onde o primeiro é um elemento de l (igual ao n) e vai metendo pares (y,0) (y,1)...
                     --sempre que é igual mas só retorna o número (índice do elemento)
+
 --20
 nub':: Eq a => [a]->[a]
 nub' [] = []
@@ -369,8 +369,8 @@ minimum' (h1:h2:t)
 
 --35
 menor:: String->String->Bool
-menor [] _ = True
 menor _ [] = False
+menor [] _ = True
 menor (h1:t1) (h2:t2)
     | h1==h2 = menor t1 t2
     | h1<h2 = True
