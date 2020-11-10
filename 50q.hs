@@ -29,6 +29,13 @@ reverse':: [a]->[a]
 reverse' [] = []
 reverse' (x:xs) = reverse' xs ++ [x]
 
+r1:: [a]->[a]
+r1 [] = []
+r1 l = racc [] l
+    where
+        racc acc [] = acc
+        racc acc (h:t) = racc (h:acc) t 
+
 --6
 take:: Int->[a]->[a]
 take _ [] = []
@@ -133,7 +140,6 @@ elemIndices' x l = indicesAux x l 0
         indicesAux x (h:t) n
             | x==h = n:indicesAux x t (n+1)
             | otherwise = indicesAux x t (n+1)
-
 
 --holy isto funciona
 --elemIndices' n l = [i | (y,i)<-zip l [0..] ,y==n]
@@ -411,9 +417,9 @@ removeMSet a ((b,n):t)
     | otherwise = (b,n):removeMSet a t
 
 --41
-constroiMSet:: Ord a => [a]-> [(a,Int)]
-constroiMSet [] = []
-constroiMSet (h:t) = insereMSet h (constroiMSet t)
+constroiMSet1:: Ord a => [a]-> [(a,Int)]
+constroiMSet1 [] = []
+constroiMSet1 (h:t) = insereMSet h (constroiMSet1 t)
 
 {-
 insereMSet:: Eq a => a->[(a,Int)]->[(a,Int)]

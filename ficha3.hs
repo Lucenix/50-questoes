@@ -109,4 +109,21 @@ zoom _ [x] = [x]
 zoom n (h:t) = h: aux n t
     where
         aux _ [x] = (x:[])
-        aux n (p0:p1:ps) = (C (n*posx p1 - posx p0) (n*posy p1 - posy p0)):aux n (p1:ps) 
+        aux n (p0:p1:ps) = (C (n*posx p1 - posx p0) (n*posy p1 - posy p0)):aux n (p1:ps)
+
+-------------------------------------------------------
+--3
+data Contacto = Casa Integer
+            |   Trab Integer
+            |   Tlm Integer
+            |   Email String
+            deriving Show
+type Nome = String
+type Agenda = [(Nome, [Contacto])]
+
+--3a
+acrescEmail:: Nome->String->Agenda->Agenda
+acrescEmail nome email agenda = ((nome, [Email email]):agenda)
+
+--3b
+--verEmails:: Nome->Agenda->Maybe [String]
