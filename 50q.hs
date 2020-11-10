@@ -129,13 +129,14 @@ elemIndices':: Eq a => a->[a]->[Int]
 elemIndices' _ [] = []
 elemIndices' x l = indicesAux x l 0
     where
+        indicesAux _ [] _ = []
         indicesAux x (h:t) n
             | x==h = n:indicesAux x t (n+1)
             | otherwise = indicesAux x t (n+1)
 
 
 --holy isto funciona
-elemIndices' n l = [i | (y,i)<-zip l [0..] ,y==n]
+--elemIndices' n l = [i | (y,i)<-zip l [0..] ,y==n]
                     --i é o que retorna, o zip faz um par onde o primeiro é um elemento de l (igual ao n) e vai metendo pares (y,0) (y,1)...
                     --sempre que é igual mas só retorna o número (índice do elemento)
 
