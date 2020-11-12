@@ -499,6 +499,8 @@ mesmaOrdenada ((Pos _ y1):(Pos _ y2):t)
 
 data Semaforo = Verde | Amarelo | Vermelho deriving Show
 --50
+
+{-
 interseccaoOK:: [Semaforo]->Bool
 interseccaoOK l = aux l 0
     where
@@ -506,4 +508,13 @@ interseccaoOK l = aux l 0
         aux [] _ = True
         aux (e:es) n = case e of
             Verde->aux es (n+1)
+            Amarelo-> aux es (n+1)
             _->aux es n
+-}
+
+interseccaoOK:: [Semaforo]->Bool
+interseccaoOK l = contaNaoVermelhos l <= 1
+    where
+        contaNaoVermelhos [] = 0
+        contaNaoVermelhos (Vermelho:t) = contaNaoVermelhos t
+        contaNaoVermelhos (_:t) = 1 + contaNaoVermelhos t

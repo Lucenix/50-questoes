@@ -220,7 +220,35 @@ porIdade d tbdn = aux d tbdn []
 
 data Movimento = Credito Float | Debito Float deriving Show
 data Data5 = D5 Int Int Int deriving Show
-data Extracto = Ext Float [(Data, String, Movimento)] deriving Show
+data Extracto = Ext Float [(Data5, String, Movimento)] deriving Show
 
 --5a
+extValor:: Extracto->Float->[Movimento]
+extValor (Ext vini ((_,_,m):t)) vcomp 
+    | vini < vcomp = m:extValor (Ext vini t) vcomp
+    | otherwise = extValor (Ext vini t) vcomp
+extValor (Ext _ []) _ = []
 
+--5b
+filtro:: Extracto->[String]->[(Data5, Movimento)]
+filtro (Ext v l) (h:t) = aux l h ++ filtro (Ext v l) t
+    where
+        aux ((d,s,m):t) x 
+            | s == x = (d,m):aux t x
+            | otherwise = aux t x
+        aux [] _ = []
+filtro _ [] = []
+
+--5c
+creDeb:: Extracto -> (Float,Float)
+creDeb (Ext v ((_,_,h):t)) = case h of
+    Credito f -> (f+x,y)
+    Debito f -> (x,f+y) 
+    where
+        (x,y) = creDeb (Ext v t)
+creDeb (Ext _ []) = (0,0)
+
+--5d
+saldo:: Extracto->Float
+saldo (Ext v l) = v + x - y
+    where (x,y) = creDeb (Ext v l)
