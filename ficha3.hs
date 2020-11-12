@@ -95,21 +95,18 @@ areaLinha _ = 0
 --2e
 mover:: Poligonal->Ponto->Poligonal
 mover [] _ = []
-mover l p 
-    | dist p x > dist p y = p:l
-    | otherwise = p:(reverse l)
+mover (p:ps) pn = pn:move (posx pn-posx p, posy pn - posy p) ps
     where
-        (x,y) = aux l
-            where 
-                aux (h:t) = (h,last t)
+        move (x,y) (h:t) = C (posx h + x) (posy h +y):move(x,y) t
 
 --2f
 zoom:: Double->Poligonal->Poligonal
+zoom _ [] = []
 zoom _ [x] = [x]
-zoom n (h:t) = h: aux n t
+zoom n (p1:p2:ps) = p1: zoom n (mover (p2:ps) pn)
     where
-        aux _ [x] = (x:[])
-        aux n (p0:p1:ps) = (C (n*posx p1 - posx p0) (n*posy p1 - posy p0)):aux n (p1:ps)
+        pn = C (n*posx p2 - posx p1*(n-1)) (n*posy p2 - posy p1*(n-1))
+
 
 -------------------------------------------------------
 --3
@@ -117,13 +114,113 @@ data Contacto = Casa Integer
             |   Trab Integer
             |   Tlm Integer
             |   Email String
-            deriving Show
+            deriving (Show,Eq)
 type Nome = String
 type Agenda = [(Nome, [Contacto])]
 
 --3a
 acrescEmail:: Nome->String->Agenda->Agenda
-acrescEmail nome email agenda = ((nome, [Email email]):agenda)
+acrescEmail nome email [] = [(nome, [Email email])]
+acrescEmail nome email ((n,c):t)
+    | nome == n = (n, aux email c):t
+    | otherwise = (n,c):acrescEmail nome email t
+        where
+            aux email [] = [Email email]
+            aux email (Email e:t)
+                | e == email = Email e:t
+                | otherwise = (Email e):aux email t
+            aux email (c:t) = c: aux email t
 
 --3b
---verEmails:: Nome->Agenda->Maybe [String]
+verEmails:: Nome->Agenda->Maybe [String]
+verEmails nome ((n,c):t)
+    | nome == n = Just (aux c)
+    | otherwise = verEmails nome t
+        where
+            aux (Email e:t) = e:(aux t)
+            aux (_:t) = aux t
+            aux [] = []
+verEmails _ [] = Nothing
+
+--3c
+consTelefs:: [Contacto]->[Integer]
+consTelefs ((Tlm tl):t) = tl:consTelefs t
+consTelefs ((Trab tl):t) = tl:consTelefs t
+consTelefs ((Casa tl):t) = tl:consTelefs t
+consTelefs (_:t) = consTelefs t
+consTelefs [] = []
+
+--3d
+casa:: Nome->Agenda->Maybe Integer
+casa nome ((n,c):t) 
+    | nome == n = Just (aux c)
+    | otherwise = casa nome t
+        where
+            aux (Casa c:_) = c
+            aux (_:t) = aux t
+casa _ [] = Nothing
+
+-------------------------------------------
+
+--4
+type Dia = Int
+type Mes = Int
+type Ano = Int
+--type Nome = String
+
+data Data = D Dia Mes Ano deriving Show
+
+type TabDN = [(Nome, Data)]
+
+--4a
+procura:: Nome->TabDN->Maybe Data
+procura nome ((n,d):t)
+    | nome == n = Just d
+    | otherwise = procura nome t
+procura _ [] = Nothing
+
+--4b
+idade:: Data->Nome->TabDN->Maybe Int
+idade (D d1 m1 a1) nome ((n,D d2 m2 a2):t)
+    | n == nome = if (a1>a2 && m1>m2) || (a1>a2 && m1>=m2 && d1>=d2) then Just (a1-a2) else Just (a1-a2-1)
+    | otherwise = idade (D d1 m1 a1) nome t
+idade _ _ [] = Nothing
+
+--4c
+anterior:: Data->Data->Bool
+anterior (D d1 m1 a1) (D d2 m2 a2) = (a1<a2) || (a1==a2 && m1<m2) || (a1==a2 && m1==m2 && d1<d2)
+
+--4d
+ordena:: TabDN->TabDN
+ordena [] = []
+ordena [(n,d)] = [(n,d)]
+ordena ((n,d):t) = insert' (n,d) (ordena t)
+    where
+        insert' (n,d) [] = [(n,d)]
+        insert' (n,d) ((n1,d1):t) 
+            | anterior d d1 = (n,d):(n1,d1):t 
+            | otherwise = (n1,d1):insert' (n,d) t
+
+--4e
+porIdade:: Data->TabDN->[(Nome,Int)]
+porIdade _ [] = []
+porIdade d tbdn = aux d tbdn []
+    where 
+        aux:: Data->TabDN->[(Nome,Int)]->[(Nome,Int)]
+        aux _ [] acc = acc
+        aux d1 ((nome,d2):t1) ((n,i):t2)
+            | i' <= i = aux d1 t1 ((nome,i'):(n,i):t2)
+            | otherwise = aux d1 t1 ((n,i):(nome,i'):t2)
+                where
+                    Just i' = idade d1 n [(nome,d2)]
+
+---------------------------------------------------------------------------------------------
+
+--5
+
+data Movimento = Credito Float | Debito Float deriving Show
+data Data5 = D5 Int Int Int deriving Show
+data Extracto = Ext Float [(Data, String, Movimento)] deriving Show
+
+--5a
+
