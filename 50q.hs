@@ -236,6 +236,14 @@ pMaiorAux (h1:h2:t)
     | h1 < h2 = pMaiorAux (h2:t)
 -}
 
+--29
+temRepetidos:: Eq a => [a]->Bool
+temRepetidos (h1:h2:t) = aux h1 (h2:t) && temRepetidos (h2:t)
+      where
+            aux h1 (h2:t)
+                  | h1 == h2 = False
+                  | otherwise = aux h1 t 
+
 --30
 algarismos:: [Char]->[Char]
 algarismos (h:t)
@@ -487,12 +495,13 @@ maisCentral ((Pos x1 y1):(Pos x2 y2):t)
 vizinhos:: Posicao->[Posicao]->[Posicao]
 vizinhos _ [] = []
 vizinhos (Pos x1 y1) ((Pos x2 y2):t)
-    | x2 == x1-1 || x2 == x1+1 || y2 == y1-1 || y2 == y1+1 = (Pos x2 y2): vizinhos (Pos x1 y1) t
+    | (x2 == x1-1 && y2==y1) || (x2 == x1+1 && y2==y1) || (y2 == y1-1 && x2==x1) || (y2 == y1+1 && x1==x2) = (Pos x2 y2): vizinhos (Pos x1 y1) t
     | otherwise = vizinhos (Pos x1 y1) t
 
 --49
 mesmaOrdenada:: [Posicao]->Bool
 mesmaOrdenada [] = True
+mesmaOrdenada [_] = True
 mesmaOrdenada ((Pos _ y1):(Pos _ y2):t)
     | y1 /= y2 = False
     | otherwise = mesmaOrdenada t
