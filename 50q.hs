@@ -195,7 +195,8 @@ insert' n (h:t)
 --26
 unwords':: [String]->String
 unwords' [] = ""
-unwords' (h:t) = h ++ " " ++ unwords' t
+unwords' [h2] = h2
+unwords' (h1:h2:t) = h1 ++ " " ++ unwords' (h2:t)
 
 --27
 unlines':: [String]->String
@@ -218,6 +219,7 @@ pMaior':: Ord a => [a]->Int
 pMaior' l = snd (pMaiorAux l)
 
 pMaiorAux:: Ord a => [a]->(a,Int)
+pMaiorAux [h] = (h,0)
 pMaiorAux (h:t)
     | h > m = (h,0)
     | otherwise = (m, p+1)
