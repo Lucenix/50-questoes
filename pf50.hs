@@ -8,7 +8,8 @@ enumFromTo' f t
 --2
 enumFromThenTo':: Int->Int->Int->[Int]
 enumFromThenTo' f the to
-      | f<=to = f: enumFromThenTo' the (f+(f-the)) to
+      | f<=to && f<the = f: enumFromThenTo' the (2*the - f) to
+      | f>=to && f>the = f: enumFromThenTo' the (2*the - f) to
       | otherwise = []
 
 --3
@@ -34,14 +35,16 @@ reverse' l = auxacc l []
 take':: Int->[a]->[a]
 take' 0 _ = []
 take' _ [] = []
-take' n (h:t) = h:take' (n-1) t
-
+take' n (h:t) 
+      | n>0 = h:take' (n-1) t
+      | otherwise = []
 --7
 drop':: Int->[a]->[a]
 drop' 0 l = l
 drop' _ [] = []
-drop' n (_:t) = drop' (n-1) t
-
+drop' n (h:t) 
+      | n>0 =drop' (n-1) t
+      | otherwise = h:t 
 --8
 zip':: [a]->[b]->[(a,b)]
 zip' [] _ = []
@@ -58,8 +61,9 @@ elem'' h1 (h2:t)
 --10
 replicate'::Int->a->[a]
 replicate' 0 _ = []
-replicate' n x = x:replicate' (n-1) x
-
+replicate' n x 
+      | n>0 = x:replicate' (n-1) x
+      | n<0 = []
 --11
 intersperse:: a->[a]->[a]
 intersperse _ [] = []
@@ -76,17 +80,28 @@ agrupa (h:t) = agrupaacc [h] t
                   | x == h = agrupaacc (h:x:xs) t
                   | otherwise = (x:xs):agrupaacc [h] t
 
-agrupa':: Eq a => [a]->[[a]]
-agrupa' [] = []
-agrupa' l = p:agrupa' (drop' (length p) l)
-      where
-            p = aux l
-                  where
-                        aux:: Eq a => [a]->[a]
-                        aux [x] = [x]
-                        aux (h1:h2:t) 
-                              | h1==h2 = h1:aux (h2:t)
-                              | otherwise = [h1]
+--mygroup2 :: Eq a => [a] -> [[a]]
+--mygroup2 [] = []
+--mygroup2 [x] = [[x]]
+--mygroup2 (x:xs)
+--             | x == (head xs) = (x:head (mygroup2 xs)):tail(mygroup2 xs)
+--             | otherwise = [x]:(mygroup2 xs)
+--
+--mygroup :: Eq a => [a] -> [[a]]
+--mygroup [] = []
+--mygroup [x] = [[x]]
+--mygroup (x:xs)
+--             | x == (head xs) = (x:mygrouph xs):(mygroupt xs)
+--             | otherwise = [x]:(mygroup xs)
+--                  where
+--                        mygrouph [h] = [h]
+--                        mygrouph (h:hs)
+--                              | h == (head hs) = (h:mygrouph hs)
+--                              | otherwise = [h]
+--                        mygroupt [t] = []
+--                        mygroupt (t:ts)
+--                              | t == (head ts) = mygroupt ts
+--                              | otherwise = mygroup ts
 
 --13
 concat'::[[a]]->[a]
@@ -204,11 +219,11 @@ union l1 l2 = l1 ++ removeaux l2 l1
 intersect' :: Eq a => [a] -> [a] -> [a]
 intersect' [] _ = []
 intersect' _ [] = []
-intersect' l1 (h:t) = intersect' (intersectaux l1 h) t
+intersect' (h:t) l2 = (intersectaux l2 h) ++ intersect' t l2
       where
             intersectaux [] _ = []
             intersectaux (h:t) x
-                  | h == x = h:intersectaux t x
+                  | h == x = [h]
                   | otherwise = intersectaux t x
 
 --25
@@ -303,8 +318,8 @@ iSort' (h:t) = insert' h (iSort' t)
 
 --35
 menor:: String->String->Bool
-menor [] _ = True
 menor _ [] = False
+menor [] _ = True
 menor (h1:t1) (h2:t2)
       | h1<h2 = True
       | otherwise = menor t1 t2
