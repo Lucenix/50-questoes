@@ -96,19 +96,24 @@ ordena = sortOn' snd
 
 --2i (está a por o elemento com o maior grau no início: o foldl 'acaba')
 normaliza:: Polinomio->Polinomio
-normaliza p = foldl f [] (ordena p)
+normaliza p = ordena (normaliza' (ordena p))
     where
-        f [] x = [x]
-        f ((c,g):t) (x,y)
-            | g == y = (c+x,y):t
-            | otherwise = (x,y):t ++ [(c,g)]
+    normaliza' [] = []
+    normaliza' (m:p) = foldl (\((c,e):ms) (c1,e1)-> if (e == e1) then (c+c1,e1):ms else (c1,e1):(c,e):ms) [m] p
 
 --2j
 soma::Polinomio->Polinomio->Polinomio
 soma p1 p2 = normaliza (p1++p2)
 
 --2k
+produto:: Polinomio->Polinomio->Polinomio
+produto p1 p2 = concatMap (\m -> mult m p2) p1
+
 --2l
+equiv:: Polinomio->Polinomio->Bool
+equiv p1 p2 = equiv' (normaliza p1) (normaliza p2)
+    where
+        equiv' p1 p2 = and (zipWith (==) p1 p2)
 
 --3
 type Mat a = [[a]]
@@ -124,3 +129,47 @@ dimOK (l:ls) = aux (length l) ls
 --dimOK [] = False
 --dimOK (l:ls) = all (\l' -> length l' == length l) ls
 
+--3b
+dimMat:: Mat a -> (Int,Int)
+dimMat [] = (0,0)
+dimMat (l:ls) = (length (l:ls), length l)
+
+--3c
+addMat:: Num a => Mat a -> Mat a -> Mat a
+addMat = zipWith (zipWith (+))
+
+--3d
+transpose':: Mat a -> Mat a
+transpose' m1 = map head m1 : transpose' (map tail m1)
+
+--3e
+multMat:: Num a => Mat a -> Mat a -> Mat a
+multMat m1 m2 = if (snd (dimMat m1) == fst (dimMat m2)) then ([[sum (zipWith (*) l1 l2) | l2 <- transpose' m2] | l1 <- m1]) else (error "Not possible")
+
+--3f
+zipWMat:: (a->b->c)->Mat a -> Mat b -> Mat c
+zipWMat f ([e1]:l1:lss) ([e2]:l2:lzz) = [(f e1 e2)]:((zipWith f l1 l2):(zipWMat f lss lzz))
+
+--3g
+triSup:: (Num a, Eq a) => Mat a -> Bool
+triSup [] = True
+triSup (_:ms) = aux 1 ms
+    where
+        aux _ [] = True
+        aux n (l:ls) = auxx n l && aux (n+1) ls
+            where
+                auxx 0 _ = True
+                auxx n (e:es)
+                    | e == 0 = auxx (n-1) es
+                    | otherwise = False
+
+--Idea erradas (o produto ser 0 não me garante que o primeiro elemento é zero):
+--triSup:: Num a => Mat a -> Bool
+--triSup [] = True
+--triSup (_:ms) = all f ms
+--    where
+--        f ms = product ms == 0
+
+--3h
+rotateLeft:: Mat a -> Mat a
+rotateLeft m = map last m : rotateLeft (map init m)
