@@ -152,16 +152,23 @@ zipWMat f ([e1]:l1:lss) ([e2]:l2:lzz) = [(f e1 e2)]:((zipWith f l1 l2):(zipWMat 
 
 --3g
 triSup:: (Num a, Eq a) => Mat a -> Bool
-triSup [] = True
-triSup (_:ms) = aux 1 ms
+triSup m = all (\(e,l)->aux e l) (zip [0..] m)
     where
-        aux _ [] = True
-        aux n (l:ls) = auxx n l && aux (n+1) ls
-            where
-                auxx 0 _ = True
-                auxx n (e:es)
-                    | e == 0 = auxx (n-1) es
-                    | otherwise = False
+        aux 0 _ = True
+        aux _ [] = False
+        aux n (e:es)
+            | e == 0 = aux (n-1) es
+            | otherwise =  False
+--triSup [] = True
+--triSup (_:ms) = aux 1 ms
+--    where
+--        aux _ [] = True
+--        aux n (l:ls) = auxx n l && aux (n+1) ls
+--            where
+--                auxx 0 _ = True
+--                auxx n (e:es)
+--                    | e == 0 = auxx (n-1) es
+--                    | otherwise = False
 
 --Idea erradas (o produto ser 0 não me garante que o primeiro elemento é zero):
 --triSup:: Num a => Mat a -> Bool
